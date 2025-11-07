@@ -78,7 +78,6 @@ public class Post extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(
             name = "head_image_id",
-            columnDefinition = "char(29)",
             referencedColumnName = "file_id",
             foreignKey = @ForeignKey(name = "fk_post_image_file")
     )

@@ -28,9 +28,9 @@ public class PostTag {
     @AllArgsConstructor
     @EqualsAndHashCode
     public static class Id implements Serializable {
-        @Column(name = "post_id", length = 29, nullable = false, columnDefinition = "CHAR(29)")
+        @Column(name = "post_id", length = 29, nullable = false)
         private String postId;
-        @Column(name = "tag_id", length = 29, nullable = false, columnDefinition = "CHAR(29)")
+        @Column(name = "tag_id", length = 29, nullable = false)
         private String tagId;
     }
 

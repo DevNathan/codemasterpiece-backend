@@ -25,14 +25,14 @@ public class FileVariant extends BaseTimeEntity {
      */
     @Id
     @PrefixedUlidId("FV")
-    @Column(name = "variant_id", length = 29, nullable = false, updatable = false, columnDefinition = "CHAR(29)")
+    @Column(name = "variant_id", length = 29, nullable = false, updatable = false)
     private String id;
 
     /**
      * 원본 파일
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "file_id", nullable = false, columnDefinition = "char(29)",
+    @JoinColumn(name = "file_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_variant_file"))
     private StoredFile original;
 

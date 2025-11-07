@@ -31,11 +31,11 @@ public class CommentReaction extends BaseTimeEntity {
 
     @Id
     @PrefixedUlidId("CR")
-    @Column(name = "reaction_id", nullable = false, columnDefinition = "CHAR(29)")
+    @Column(name = "reaction_id", nullable = false, length = 29)
     private String id;
 
     @ManyToOne(fetch = LAZY, optional = false)
-    @JoinColumn(name = "comment_id", columnDefinition = "CHAR(29)",
+    @JoinColumn(name = "comment_id",
             referencedColumnName = "comment_id",
             foreignKey = @ForeignKey(name = "fk_comment_reaction_comment"))
     @OnDelete(action = OnDeleteAction.CASCADE)

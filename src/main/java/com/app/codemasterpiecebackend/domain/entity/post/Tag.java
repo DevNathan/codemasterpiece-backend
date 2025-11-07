@@ -28,7 +28,7 @@ public class Tag {
     /** ULID 기반 식별자 ("TG-xxxxxxxx...") */
     @Id
     @PrefixedUlidId("TG")
-    @Column(name = "tag_id", nullable = false, length = 29, columnDefinition = "CHAR(29)")
+    @Column(name = "tag_id", nullable = false, length = 29)
     @ToString.Include
     private String id;
 

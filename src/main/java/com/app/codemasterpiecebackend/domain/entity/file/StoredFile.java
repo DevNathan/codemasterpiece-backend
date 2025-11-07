@@ -14,7 +14,7 @@ import java.time.Instant;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class StoredFile extends BaseTimeEntity {
     @Id
-    @Column(length = 29, name = "file_id", columnDefinition = "char(29)", nullable = false, updatable = false)
+    @Column(length = 29, name = "file_id", nullable = false, updatable = false)
     private String id;
 
     @Enumerated(EnumType.STRING)

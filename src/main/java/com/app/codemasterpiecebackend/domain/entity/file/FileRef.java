@@ -22,7 +22,7 @@ public class FileRef {
 
     @Id
     @PrefixedUlidId("FR")
-    @Column(length = 29, name = "file_ref_id", columnDefinition = "char(29)", nullable = false, updatable = false)
+    @Column(length = 29, name = "file_ref_id", nullable = false, updatable = false)
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -34,7 +34,7 @@ public class FileRef {
     @Column(name = "owner_type", length = 32, nullable = false)
     private FileOwnerType ownerType;
 
-    @Column(name = "owner_id", columnDefinition = "char(29)", nullable = false)
+    @Column(name = "owner_id", length = 29, nullable = false)
     private String ownerId;
 
     @Enumerated(EnumType.STRING)

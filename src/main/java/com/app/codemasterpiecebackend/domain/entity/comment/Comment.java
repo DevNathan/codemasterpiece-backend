@@ -32,14 +32,14 @@ public class Comment extends BaseTimeEntity {
 
     @Id
     @PrefixedUlidId("CO")
-    @Column(name = "comment_id", nullable = false, columnDefinition = "CHAR(29)")
+    @Column(name = "comment_id", nullable = false, length = 29)
     private String id;
 
     @Column(name = "content", nullable = false, length = 2000)
     private String content;
 
     @ManyToOne(fetch = LAZY, optional = false)
-    @JoinColumn(name = "post_id", columnDefinition = "CHAR(29)",
+    @JoinColumn(name = "post_id",
             referencedColumnName = "post_id",
             foreignKey = @ForeignKey(name = "fk_comment_post"))
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -62,7 +62,7 @@ public class Comment extends BaseTimeEntity {
     private GuestAuth guestAuth;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "parent_id", columnDefinition = "CHAR(29)",
+    @JoinColumn(name = "parent_id",
             foreignKey = @ForeignKey(name = "fk_comment_parent"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Comment parent;

@@ -31,14 +31,13 @@ import java.time.LocalDateTime;
 public class PostLike {
     @Id
     @PrefixedUlidId("LK")
-    @Column(name = "like_id", nullable = false, updatable = false, columnDefinition = "char(29)", length = 29)
+    @Column(name = "like_id", nullable = false, updatable = false,  length = 29)
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "post_id",
             referencedColumnName = "post_id",
-            columnDefinition = "char(29)",
             foreignKey = @ForeignKey(name = "fk_like_post")
     )
     private Post post;

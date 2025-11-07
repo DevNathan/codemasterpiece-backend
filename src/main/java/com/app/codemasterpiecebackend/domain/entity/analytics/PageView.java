@@ -42,7 +42,7 @@ public class PageView extends BaseTimeEntity {
      */
     @Id
     @PrefixedUlidId("PV")
-    @Column(name = "page_view_id", nullable = false, columnDefinition = "CHAR(29)")
+    @Column(name = "page_view_id", nullable = false, length = 29)
     private String id;
 
     /**

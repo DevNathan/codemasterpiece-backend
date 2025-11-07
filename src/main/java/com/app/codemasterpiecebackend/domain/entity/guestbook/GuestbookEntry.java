@@ -26,7 +26,7 @@ public class GuestbookEntry extends BaseTimeEntity {
 
     @Id
     @PrefixedUlidId("GB")
-    @Column(name = "guestbook_id", columnDefinition = "char(29)")
+    @Column(name = "guestbook_id", length = 29)
     private String id;
 
     @Column(length = 2000, nullable = false)

@@ -60,7 +60,6 @@ public class Category {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(
             name = "image_file_id",
-            columnDefinition = "char(29)",
             referencedColumnName = "file_id",
             foreignKey = @ForeignKey(name = "fk_category_image_file")
     )
