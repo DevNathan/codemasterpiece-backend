@@ -1,0 +1,43 @@
+<configuration>
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="boardcraft"/>
+
+    <!-- ===== dev/local: 컬러 콘솔 ===== -->
+    <springProfile name="dev,local">
+        <property name="PATTERN"
+                  value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) trace=%green(%X{traceId}) %cyan(%thread) %magenta(%logger{36}) - %msg%n"/>
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${PATTERN}</pattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- ===== prod/staging: JSON 구조화 ===== -->
+    <springProfile name="prod,staging">
+        <appender name="JSON_INNER" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <timestamp/>
+
+                    <pattern>
+                        <pattern>{"app":"${APP_NAME}","level":"%level","logger":"%logger{36}","thread":"%thread",
+                            "message":"%message","traceId":"%X{traceId}","uri":"%mdc{uri}","exception":"%ex{full,2000}"}
+                        </pattern>
+                    </pattern>
+                </providers>
+            </encoder>
+        </appender>
+
+        <appender name="JSON" class="net.logstash.logback.appender.LoggingEventAsyncDisruptorAppender">
+            <appender-ref ref="JSON_INNER"/>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="JSON"/>
+        </root>
+    </springProfile>
+</configuration>

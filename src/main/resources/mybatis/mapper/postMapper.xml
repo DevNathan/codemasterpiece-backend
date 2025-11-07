@@ -1,0 +1,380 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.codemasterpiecebackend.mapper.PostMapper">
+
+    <!-- ===========================
+         공용 ResultMap
+    ============================ -->
+    <resultMap id="PostListMap" type="PostListDTO">
+        <id property="postId" column="post_id"/>
+        <result property="slug" column="slug"/>
+        <result property="title" column="title"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="headImage" column="head_image"/>
+        <result property="headContent" column="head_content"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="published" column="is_published"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+
+        <collection property="tags" ofType="string"
+                    column="post_id"
+                    select="selectTagsByPostId"/>
+    </resultMap>
+
+    <resultMap id="PostDetailMap" type="PostDetailDTO">
+        <id property="postId" column="post_id"/>
+        <result property="slug" column="slug"/>
+        <result property="title" column="title"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="categoryLink" column="category_link"/>
+        <result property="headImage" column="head_image"/>
+        <result property="headContent" column="head_content"/>
+        <result property="mainContent" column="main_content"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="published" column="is_published"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="liked" column="liked"/>
+
+        <collection property="tags" ofType="string"
+                    column="post_id"
+                    select="selectTagsByPostId"/>
+
+        <collection property="morePosts"
+                    column="{slug=slug, elevated=elevated}"
+                    select="selectMorePostsAround"/>
+    </resultMap>
+
+    <!-- ===========================
+         상세 조회
+    ============================ -->
+    <select id="findPostDetail" resultMap="PostDetailMap">
+        SELECT
+        p.post_id,
+        p.slug,
+        p.title,
+        c.name AS category_name,
+        c.link AS category_link,
+
+        /* 우선순위: AVIF -> WEBP -> ORIGINAL(storage_key) */
+        COALESCE(hv.storage_key, f.storage_key) AS head_image,
+
+        p.head_content,
+        p.main_content,
+        p.view_count,
+        p.like_count,
+        p.is_published,
+        p.created_at,
+        p.updated_at,
+
+        0 AS comment_count,
+
+        CASE
+        WHEN #{actorProvider, jdbcType=VARCHAR} IS NOT NULL
+        AND #{actorId,       jdbcType=VARCHAR} IS NOT NULL
+        THEN EXISTS (
+        SELECT 1
+        FROM tbl_post_like l
+        WHERE l.post_id = p.post_id
+        AND l.actor_provider = #{actorProvider, jdbcType=VARCHAR}
+        AND l.actor_id = #{actorId,       jdbcType=VARCHAR}
+        )
+        ELSE FALSE
+        END AS liked,
+
+        #{elevated} AS elevated
+
+        FROM tbl_post p
+        LEFT JOIN tbl_category c ON c.category_id = p.category_id
+
+        /* 1) HEAD 파일 선택: FileRef(POST, HEAD) 1순위, 없으면 p.head_image_id */
+        LEFT JOIN LATERAL (
+        SELECT COALESCE(
+        (SELECT fr.file_id
+        FROM tbl_file_ref fr
+        WHERE fr.owner_type = 'POST'
+        AND fr.owner_id = p.post_id
+        AND fr.purpose = 'HEAD'
+        ORDER BY fr.sort_order NULLS LAST, fr.file_ref_id
+        LIMIT 1),
+        p.head_image_id
+        ) AS head_file_id
+        ) hf ON TRUE
+
+        /* 2) 원본 파일 엔트리 */
+        LEFT JOIN tbl_file f ON f.file_id = hf.head_file_id
+
+        /* 3) 변형 중 최우선 1개 선택: AVIF -> WEBP */
+        LEFT JOIN LATERAL (
+        SELECT v.storage_key
+        FROM tbl_file_variant v
+        WHERE v.file_id = hf.head_file_id
+        AND v.status = 'ACTIVE'
+        AND v.kind IN ('AVIF','WEBP')
+        ORDER BY CASE v.kind
+        WHEN 'AVIF' THEN 1
+        WHEN 'WEBP' THEN 2
+        ELSE 99
+        END
+        LIMIT 1
+        ) hv ON TRUE
+
+        WHERE p.slug = #{slug}
+        <if test="!elevated">
+            AND p.is_published = TRUE
+        </if>
+        LIMIT 1
+    </select>
+
+    <!-- ===========================
+         태그 목록 (하위 컬렉션)
+    ============================ -->
+    <select id="selectTagsByPostId" resultType="string">
+        SELECT t.name
+        FROM tbl_post_tag pt
+                 JOIN tbl_tag t ON t.tag_id = pt.tag_id
+        WHERE pt.post_id = #{post_id}
+        ORDER BY pt.sort_order ASC
+    </select>
+
+    <!-- ===========================
+         morePosts (앞2/뒤2)
+    ============================ -->
+    <select id="selectMorePostsAround" resultMap="PostListMap">
+        WITH tgt AS (
+        SELECT p.post_id, p.created_at, p.link
+        FROM tbl_post p
+        WHERE p.slug = #{slug}
+        LIMIT 1
+        ),
+        prevs AS (
+        SELECT
+        p.post_id, p.slug, p.title,
+        c.name AS category_name,
+        COALESCE(hv.storage_key, f.storage_path) AS head_image,
+        p.head_content,
+        p.view_count, p.like_count, p.is_published,
+        p.created_at, p.updated_at
+        FROM tbl_post p
+        LEFT JOIN tbl_category c ON c.category_id = p.category_id
+
+        LEFT JOIN LATERAL (
+        SELECT COALESCE(
+        (SELECT fr.file_id
+        FROM tbl_file_ref fr
+        WHERE fr.owner_type = 'POST'
+        AND fr.owner_id = p.post_id
+        AND fr.purpose = 'HEAD'
+        ORDER BY fr.sort_order NULLS LAST, fr.file_ref_id
+        LIMIT 1),
+        p.head_image_id
+        ) AS head_file_id
+        ) hf ON TRUE
+
+        LEFT JOIN tbl_file f ON f.file_id = hf.head_file_id
+
+        LEFT JOIN LATERAL (
+        SELECT v.storage_key
+        FROM tbl_file_variant v
+        WHERE v.file_id = hf.head_file_id
+        AND v.status = 'ACTIVE'
+        AND v.kind IN ('THUMB_512','THUMB_256','WEBP','AVIF')
+        ORDER BY CASE v.kind
+        WHEN 'THUMB_512' THEN 1
+        WHEN 'THUMB_256' THEN 2
+        WHEN 'WEBP' THEN 3
+        WHEN 'AVIF' THEN 4
+        ELSE 99
+        END
+        LIMIT 1
+        ) hv ON TRUE
+
+        WHERE p.link = (SELECT link FROM tgt)
+        AND p.created_at &lt; (SELECT created_at FROM tgt)
+        <if test="!elevated">
+            AND p.is_published = TRUE
+        </if>
+        ORDER BY p.created_at DESC
+        LIMIT 2
+        ),
+        nexts AS (
+        SELECT
+        p.post_id, p.slug, p.title,
+        c.name AS category_name,
+        COALESCE(hv.storage_key, f.storage_path) AS head_image,
+        p.head_content,
+        p.view_count, p.like_count, p.is_published,
+        p.created_at, p.updated_at
+        FROM tbl_post p
+        LEFT JOIN tbl_category c ON c.category_id = p.category_id
+
+        LEFT JOIN LATERAL (
+        SELECT COALESCE(
+        (SELECT fr.file_id
+        FROM tbl_file_ref fr
+        WHERE fr.owner_type = 'POST'
+        AND fr.owner_id = p.post_id
+        AND fr.purpose = 'HEAD'
+        ORDER BY fr.sort_order NULLS LAST, fr.file_ref_id
+        LIMIT 1),
+        p.head_image_id
+        ) AS head_file_id
+        ) hf ON TRUE
+
+        LEFT JOIN tbl_file f ON f.file_id = hf.head_file_id
+
+        LEFT JOIN LATERAL (
+        SELECT v.storage_key
+        FROM tbl_file_variant v
+        WHERE v.file_id = hf.head_file_id
+        AND v.status = 'ACTIVE'
+        AND v.kind IN ('THUMB_512','THUMB_256','WEBP','AVIF')
+        ORDER BY CASE v.kind
+        WHEN 'THUMB_512' THEN 1
+        WHEN 'THUMB_256' THEN 2
+        WHEN 'WEBP' THEN 3
+        WHEN 'AVIF' THEN 4
+        ELSE 99
+        END
+        LIMIT 1
+        ) hv ON TRUE
+
+        WHERE p.link = (SELECT link FROM tgt)
+        AND p.created_at &gt; (SELECT created_at FROM tgt)
+        <if test="!elevated">
+            AND p.is_published = TRUE
+        </if>
+        ORDER BY p.created_at ASC
+        LIMIT 2
+        )
+        SELECT * FROM (
+        SELECT * FROM prevs ORDER BY created_at ASC
+        ) p
+        UNION ALL
+        SELECT * FROM nexts;
+    </select>
+
+    <!-- ===========================
+         리스트 페이지
+    ============================ -->
+    <select id="findPostPage" resultMap="PostListMap">
+        SELECT
+        p.post_id,
+        p.slug,
+        p.title,
+        c.name AS category_name,
+        COALESCE(hv.storage_key, f.storage_path) AS head_image,
+        p.head_content,
+        p.view_count,
+        p.like_count,
+        p.is_published,
+        p.created_at,
+        p.updated_at
+        FROM tbl_post p
+        LEFT JOIN tbl_category c ON c.category_id = p.category_id
+
+        LEFT JOIN LATERAL (
+        SELECT COALESCE(
+        (SELECT fr.file_id
+        FROM tbl_file_ref fr
+        WHERE fr.owner_type = 'POST'
+        AND fr.owner_id = p.post_id
+        AND fr.purpose = 'HEAD'
+        ORDER BY fr.sort_order NULLS LAST, fr.file_ref_id
+        LIMIT 1),
+        p.head_image_id
+        ) AS head_file_id
+        ) hf ON TRUE
+
+        LEFT JOIN tbl_file f ON f.file_id = hf.head_file_id
+
+        LEFT JOIN LATERAL (
+        SELECT v.storage_key
+        FROM tbl_file_variant v
+        WHERE v.file_id = hf.head_file_id
+        AND v.status = 'ACTIVE'
+        AND v.kind IN ('THUMB_512','THUMB_256','WEBP','AVIF')
+        ORDER BY CASE v.kind
+        WHEN 'THUMB_512' THEN 1
+        WHEN 'THUMB_256' THEN 2
+        WHEN 'WEBP' THEN 3
+        WHEN 'AVIF' THEN 4
+        ELSE 99 END
+        LIMIT 1
+        ) hv ON TRUE
+
+        <where>
+            <if test="link != null and link != ''">
+                AND p.link = #{link}
+            </if>
+
+            <if test="!elevated">
+                AND p.is_published = TRUE
+            </if>
+
+            <!-- ===== KEYWORD FILTER ===== -->
+            <if test="keyword != null and keyword != ''">
+                AND (
+                p.title ILIKE CONCAT('%', #{keyword}, '%')
+                OR p.head_content ILIKE CONCAT('%', #{keyword}, '%')
+                OR p.main_content ILIKE CONCAT('%', #{keyword}, '%')
+                OR EXISTS (
+                SELECT 1
+                FROM tbl_post_tag pt
+                JOIN tbl_tag t ON t.tag_id = pt.tag_id
+                WHERE pt.post_id = p.post_id
+                AND t.name ILIKE CONCAT('%', #{keyword}, '%')
+                )
+                )
+            </if>
+        </where>
+
+        <choose>
+            <when test="sortKey == 'updatedAt'">ORDER BY p.updated_at</when>
+            <when test="sortKey == 'viewCount'">ORDER BY p.view_count</when>
+            <when test="sortKey == 'likeCount'">ORDER BY p.like_count</when>
+            <when test="sortKey == 'title'">ORDER BY p.title</when>
+            <otherwise>ORDER BY p.created_at</otherwise>
+        </choose>
+        <choose>
+            <when test="sortDir == 'ASC'">ASC</when>
+            <otherwise>DESC</otherwise>
+        </choose>
+
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countPostPage" resultType="long">
+        SELECT COUNT(*)
+        FROM tbl_post p
+        <where>
+            <if test="link != null and link != ''">
+                AND p.link = #{link}
+            </if>
+
+            <if test="!elevated">
+                AND p.is_published = TRUE
+            </if>
+
+            <!-- ===== KEYWORD FILTER (카운트도 동일조건) ===== -->
+            <if test="keyword != null and keyword != ''">
+                AND (
+                p.title ILIKE CONCAT('%', #{keyword}, '%')
+                OR p.head_content ILIKE CONCAT('%', #{keyword}, '%')
+                OR p.main_content ILIKE CONCAT('%', #{keyword}, '%')
+                OR EXISTS (
+                SELECT 1
+                FROM tbl_post_tag pt
+                JOIN tbl_tag t ON t.tag_id = pt.tag_id
+                WHERE pt.post_id = p.post_id
+                AND t.name ILIKE CONCAT('%', #{keyword}, '%')
+                )
+                )
+            </if>
+        </where>
+    </select>
+
+</mapper>

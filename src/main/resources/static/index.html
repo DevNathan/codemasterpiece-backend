@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>Codemasterpiece API Server</title>
+    <meta content="Codemasterpiece API 서버 안내 페이지" name="description"/>
+    <link href="/favicon.ico" rel="icon" sizes="125x125" type="image/x-icon"/>
+
+    <!-- 브라우저 렌더 힌트 -->
+    <meta content="dark light" name="color-scheme"/>
+    <meta content="#0e0e11" media="(prefers-color-scheme: dark)" name="theme-color"/>
+    <meta content="#fafafd" media="(prefers-color-scheme: light)" name="theme-color"/>
+
+    <style>
+        /* --- Root tokens (기본: 라이트, 다크에서 오버라이드) --- */
+        :root {
+            color-scheme: dark light; /* 스크롤바/폼 컨트롤 대비 일관화 */
+            --bg: 250 250 253;
+            --fg: 13 18 23;
+            --muted: 92 98 110;
+            --card: 255 255 255;
+            --accent: 37 99 235;
+            --accent-2: 16 185 129;
+            --warn: 250 204 21;
+            --danger: 248 113 113;
+            --ok: 74 222 128;
+            --ring: 59 130 246;
+            --code-fg: 32 41 58;
+            --code-bg: 240 244 255;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: 14 14 17;
+                --fg: 245 245 247;
+                --muted: 165 165 178;
+                --card: 22 22 28;
+                --accent: 96 165 250;
+                --accent-2: 74 222 128;
+                --code-fg: 226 232 240;
+                --code-bg: 17 19 24;
+            }
+        }
+
+        /* --- Reset --- */
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Apple SD Gothic Neo, "Apple Color Emoji", "Segoe UI Emoji";
+            color: rgb(var(--fg));
+            background: radial-gradient(1200px 600px at 20% -10%, rgba(var(--accent), .12), transparent 60%),
+            radial-gradient(1000px 600px at 120% 10%, rgba(var(--accent-2), .12), transparent 55%),
+            rgb(var(--bg));
+            overflow-x: hidden;
+            transition: background-color .25s ease, color .25s ease;
+        }
+
+        /* 다크에서 배경 대비 강화 */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: radial-gradient(1200px 600px at 20% -10%, rgba(var(--accent), .18), transparent 60%),
+                radial-gradient(1000px 600px at 120% 10%, rgba(var(--accent-2), .20), transparent 55%),
+                rgb(var(--bg));
+            }
+        }
+
+        /* Subtle film grain */
+        .noise {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .08;
+            mix-blend-mode: soft-light;
+        }
+
+        .noise::before {
+            content: "";
+            position: absolute;
+            inset: -100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.45"/></svg>');
+            background-size: 240px 240px;
+            animation: grain 8s steps(10) infinite;
+        }
+
+        @keyframes grain {
+            from {
+                transform: translate(0, 0);
+            }
+            to {
+                transform: translate(160px, 160px);
+            }
+        }
+
+        /* Layout */
+        .wrap {
+            min-height: 100dvh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+        }
+
+        .card {
+            width: min(960px, 92vw);
+            background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .03)), rgba(var(--card), .70);
+            backdrop-filter: blur(12px) saturate(120%);
+            border: 1px solid rgba(0, 0, 0, .06);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, .12);
+            overflow: clip;
+            transition: background-color .25s ease, border-color .25s ease, box-shadow .25s ease;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .card {
+                background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .03)), rgba(var(--card), .60);
+                border-color: rgba(255, 255, 255, .12);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, .25), inset 0 1px 0 rgba(255, 255, 255, .05);
+            }
+        }
+
+        .header {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 18px;
+            padding: 28px 28px 0;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: conic-gradient(from 210deg, rgba(var(--accent), .85), rgba(var(--accent-2), .85));
+            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .25);
+        }
+
+        .logo svg {
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .25));
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: clamp(22px, 3.6vw, 30px);
+            letter-spacing: -0.02em;
+        }
+
+        .brand p {
+            margin: 0;
+            color: rgb(var(--muted));
+            font-size: 14px;
+        }
+
+        .status {
+            justify-self: end;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .badge {
+            --c: var(--ok);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 0, 0, .10);
+            background: rgba(0, 0, 0, .04);
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: .02em;
+            color: rgb(var(--fg));
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .badge {
+                border-color: rgba(255, 255, 255, .18);
+                background: rgba(255, 255, 255, .06);
+            }
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgb(var(--ok));
+            box-shadow: 0 0 0 4px rgba(74, 222, 128, .15);
+        }
+
+        .body {
+            display: grid;
+            gap: 22px;
+            padding: 24px 28px 28px;
+        }
+
+        .hero {
+            display: grid;
+            gap: 10px;
+        }
+
+        .hero h2 {
+            margin: 0;
+            font-size: clamp(28px, 5.6vw, 44px);
+            letter-spacing: -.02em;
+            line-height: 1.15;
+        }
+
+        .hero p {
+            margin: 0;
+            color: rgb(var(--muted));
+            font-size: clamp(14px, 2.2vw, 16px);
+        }
+
+        .cta-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .btn {
+            --bgc: rgba(var(--accent), .95);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, .12);
+            background: var(--bgc);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 800;
+            letter-spacing: .02em;
+            font-size: 14px;
+            transition: transform .08s ease, filter .2s ease, box-shadow .2s ease;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, .25), inset 0 -2px 0 rgba(0, 0, 0, .15);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .btn {
+                border-color: rgba(255, 255, 255, .18);
+            }
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            filter: brightness(0.98);
+        }
+
+        .btn.secondary {
+            --bgc: transparent;
+            color: rgb(var(--fg));
+            font-weight: 700;
+            box-shadow: none;
+            border: 1px dashed rgba(0, 0, 0, .18);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .btn.secondary {
+                border-color: rgba(255, 255, 255, .24);
+                background: rgba(255, 255, 255, .06);
+            }
+        }
+
+        /* Code block */
+        .code {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, .08);
+            background: rgb(var(--code-bg));
+        }
+
+        .code .topbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, .05);
+            border-bottom: 1px solid rgba(0, 0, 0, .06);
+            font-size: 12px;
+            color: rgb(var(--muted));
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .code {
+                border-color: rgba(255, 255, 255, .12);
+                background: rgb(var(--code-bg));
+            }
+
+            .code .topbar {
+                background: rgba(0, 0, 0, .18);
+                border-bottom-color: rgba(255, 255, 255, .08);
+            }
+        }
+
+        .code .dots {
+            display: flex;
+            gap: 6px;
+            margin-right: 8px;
+        }
+
+        .code .dots i {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .code pre {
+            margin: 0;
+            padding: 16px 18px;
+            overflow: auto;
+            font: 600 13px/1.7 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            color: rgb(var(--code-fg));
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 16px;
+        }
+
+        .col-7 {
+            grid-column: span 7;
+        }
+
+        .col-5 {
+            grid-column: span 5;
+        }
+
+        @media (max-width: 880px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .col-7, .col-5 {
+                grid-column: auto;
+            }
+        }
+
+        /* Info cards */
+        .info {
+            display: grid;
+            gap: 14px;
+        }
+
+        .i-card {
+            border: 1px solid rgba(0, 0, 0, .08);
+            border-radius: 14px;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, .03);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .i-card {
+                border-color: rgba(255, 255, 255, .12);
+                background: rgba(255, 255, 255, .04);
+            }
+        }
+
+        .i-card h3 {
+            margin: 0 0 6px;
+            font-size: 14px;
+            letter-spacing: .02em;
+            text-transform: uppercase;
+            color: rgb(var(--muted));
+        }
+
+        .i-card p {
+            margin: 0;
+            font-size: 15px;
+        }
+
+        .kv {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .kv code {
+            font: 600 13px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            background: rgba(0, 0, 0, .06);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .kv code {
+                background: rgba(0, 0, 0, .22);
+                color: rgb(226 232 240);
+            }
+        }
+
+        /* Footer */
+        .foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 20px;
+            border-top: 1px dashed rgba(0, 0, 0, .14);
+            color: rgb(var(--muted));
+            font-size: 13px;
+        }
+
+        .foot a {
+            color: inherit;
+        }
+
+        .foot .links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .foot {
+                border-top-color: rgba(255, 255, 255, .14);
+            }
+        }
+
+        /* Focus visible */
+        :focus-visible {
+            outline: 3px solid rgba(var(--ring), .9);
+            outline-offset: 2px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div aria-hidden="true" class="noise"></div>
+<main class="wrap">
+    <section aria-label="Codemasterpiece API 안내" class="card" role="region">
+        <header class="header">
+            <div class="brand">
+          <span aria-hidden="true" class="logo">
+            <svg aria-hidden="true" fill="none" focusable="false" height="26" viewBox="0 0 24 24"
+                 width="26" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 12a8 8 0 1 1 3 6" stroke="white" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
+              <path d="M7 12a5 5 0 1 1 2.6 4.37" stroke="white" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
+              <path d="M10 12a2 2 0 1 1 2 2" stroke="white" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
+            </svg>
+          </span>
+                <div>
+                    <h1>Codemasterpiece API</h1>
+                    <p>이 서버는 API 전용입니다. 실제 웹 사이트는 아래 링크로 이동하세요.</p>
+                </div>
+            </div>
+            <div aria-label="서비스 상태" class="status">
+                <span class="badge" title="실시간 상태"><span aria-hidden="true" class="dot"></span>ONLINE</span>
+                <span class="badge" style="--c: var(--warn);">
+            <svg aria-hidden="true" fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                 stroke-width="2" viewBox="0 0 24 24" width="14"><path d="m21 10-6-6"/><path
+                    d="m3 7 5.5-5.5"/><path d="M2 22l10-10"/><path d="m12 22 10-10"/></svg>
+            v1.x
+          </span>
+            </div>
+        </header>
+
+        <div class="body">
+            <div class="grid">
+                <div class="col-7">
+                    <div class="hero">
+                        <h2>Fast. Minimal. No BS.</h2>
+                        <p>간단명료한 API 인덱스. 개발자는 바로 확인하고, 사용자는 메인으로 직행하면 끝.</p>
+                        <div class="cta-row">
+                            <a aria-label="Codemasterpiece 메인으로 이동" class="btn" href="https://www.codemasterpiece.com" rel="noopener"
+                               target="_blank">Go to Codemasterpiece</a>
+                            <a aria-label="API 정보로 이동" class="btn secondary" href="#docs">API Info</a>
+                        </div>
+                    </div>
+
+                    <div class="code" style="margin-top:18px">
+                        <div class="topbar"><span class="dots"><i style="background:#ff5f57"></i><i
+                                style="background:#febc2e"></i><i style="background:#28c840"></i></span> quick check
+                        </div>
+                        <button class="copy-btn" data-copy="#curl">Copy</button>
+                        <pre aria-label="헬스 체크 예시" id="curl">
+curl -sS https://api.codemasterpiece.com/health | jq
+# or
+curl -I https://api.codemasterpiece.com/health
+              </pre>
+                    </div>
+                </div>
+
+                <div class="col-5 info" id="docs">
+                    <div class="i-card" role="note">
+                        <h3>Purpose</h3>
+                        <p>이 도메인은 <strong>API 서버 전용</strong>입니다. 정적 페이지나 프런트는 제공하지 않습니다.</p>
+                    </div>
+                    <div class="i-card">
+                        <h3>Endpoints</h3>
+                        <div class="kv"><span>Health</span><code>/health</code></div>
+                        <div class="kv"><span>Docs</span><code>/swagger-ui</code></div>
+                        <div class="kv"><span>API</span><code>/api/v1/**</code></div>
+                    </div>
+                    <div class="i-card">
+                        <h3>Links</h3>
+                        <div class="kv"><span>Website</span><a class="btn secondary"
+                                                               href="https://www.codemasterpiece.com"
+                                                               rel="noopener" style="padding:6px 10px; font-weight:700"
+                                                               target="_blank">codemasterpiece.com</a></div>
+                        <div class="kv"><span>Status</span><code>online</code></div>
+                    </div>
+                    <div class="i-card">
+                        <h3>Headers</h3>
+                        <p>브라우저 캐시를 피하려면 <code>Cache-Control: no-store</code> 권장.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="foot">
+            <span>© <span id="y"></span> Codemasterpiece. All killer, no filler.</span>
+            <span class="links">
+          <a href="mailto:contact@codemasterpiece.com">contact@codemasterpiece.com</a>
+          <span aria-hidden="true">·</span>
+          <a href="/robots.txt">robots</a>
+          <span aria-hidden="true">·</span>
+          <a href="/">root</a>
+        </span>
+        </footer>
+    </section>
+</main>
+
+<script>
+    // Year
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // Copy helper
+    function copyText(from) {
+        const el = document.querySelector(from);
+        if (!el) return;
+        const text = el.innerText.replace(/\n\s*$/, '');
+        navigator.clipboard.writeText(text).then(() => {
+            const b = document.querySelector('[data-copy="#curl"]');
+            if (b) {
+                b.textContent = 'Copied';
+                setTimeout(() => b.textContent = 'Copy', 1400);
+            }
+        }).catch(() => {
+        });
+    }
+
+    document.querySelectorAll('[data-copy]').forEach(btn => {
+        btn.addEventListener('click', () => copyText(btn.getAttribute('data-copy')));
+    });
+
+    // Smooth scroll for internal anchor
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const id = a.getAttribute('href');
+            const target = document.querySelector(id);
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
+        });
+    });
+</script>
+</body>
+</html>

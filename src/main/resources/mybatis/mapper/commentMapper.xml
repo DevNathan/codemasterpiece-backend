@@ -1,0 +1,128 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.codemasterpiecebackend.mapper.CommentMapper">
+
+    <!-- DTO 매핑 -->
+    <resultMap id="CommentDtoMap" type="CommentDTO">
+        <id property="commentId" column="comment_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="actorId" column="actor_id"/>
+        <result property="profileImage" column="profile_image"/>
+        <result property="nickname" column="nickname"/>
+        <result property="content" column="content"/>
+        <result property="reaction" column="reaction"/>
+        <!-- ✅ 내 반응값 매핑 -->
+        <result property="myReaction" column="my_reaction"/>
+        <result property="depth" column="depth"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="hidden" column="is_hidden"/>
+        <result property="deleted" column="is_deleted"/>
+        <result property="anon" column="is_anon"/>
+        <result property="hasChildren" column="has_children"/>
+    </resultMap>
+
+    <!-- language=SQL dialect=PostgreSQL -->
+    <!--suppress SqlNoDataSourceInspection, SqlDialectInspection -->
+    <select id="findCommentsByPostId" resultMap="CommentDtoMap">
+        <![CDATA[
+        WITH RECURSIVE
+            roots AS (
+                SELECT c.comment_id,
+                       c.parent_id,
+                       c.post_id,
+                       c.actor_id,
+                       c.actor_image_url    AS profile_image,
+                       c.actor_display_name AS nickname,
+                       c.content,
+                       c.depth,
+                       c.created_at,
+                       c.updated_at,
+                       c.is_hidden,
+                       c.is_deleted,
+                       c.actor_provider = 'ANON' AS is_anon
+                FROM tbl_comment c
+                WHERE c.post_id = #{postId}
+                  AND c.parent_id IS NULL
+                ORDER BY c.created_at DESC
+                LIMIT #{limit} OFFSET #{offset}
+            ),
+            tree AS (
+                SELECT r.*, r.created_at AS root_created_at
+                FROM roots r
+                UNION ALL
+                SELECT c.comment_id,
+                       c.parent_id,
+                       c.post_id,
+                       c.actor_id,
+                       c.actor_image_url    AS profile_image,
+                       c.actor_display_name AS nickname,
+                       c.content,
+                       c.depth,
+                       c.created_at,
+                       c.updated_at,
+                       c.is_hidden,
+                       c.is_deleted,
+                       c.actor_provider = 'ANON' AS is_anon,
+                       t.root_created_at
+                FROM tbl_comment c
+                         JOIN tree t ON c.parent_id = t.comment_id
+            )
+
+        SELECT
+            t.comment_id,
+            t.parent_id,
+            t.actor_id,
+            t.profile_image,
+            t.nickname,
+            CASE
+                WHEN #{elevated} THEN t.content
+                WHEN t.is_deleted = TRUE THEN '[deleted]'
+                WHEN t.is_hidden = TRUE THEN '[hidden by administrator]'
+                ELSE t.content
+                END AS content,
+
+            COALESCE(agg.reaction, 0) AS reaction,
+
+            me.value AS my_reaction,
+
+            t.depth,
+            t.created_at,
+            t.updated_at,
+            t.is_hidden,
+            t.is_deleted,
+            t.is_anon,
+            EXISTS (SELECT 1 FROM tbl_comment ch WHERE ch.parent_id = t.comment_id) AS has_children
+        FROM tree t
+                 /* 총합 스코어 */
+                 LEFT JOIN (
+            SELECT comment_id,
+                   SUM(CASE
+                           WHEN value = 'UPVOTE' THEN 1
+                           WHEN value = 'DOWNVOTE' THEN -1
+                           ELSE 0
+                       END) AS reaction
+            FROM tbl_comment_reaction
+            GROUP BY comment_id
+        ) agg ON agg.comment_id = t.comment_id
+
+            /* ✅ 이 actorId의 내 반응값 */
+                 LEFT JOIN tbl_comment_reaction me
+                           ON me.comment_id = t.comment_id
+                               AND me.actor_id   = #{actorId}
+
+        ORDER BY t.root_created_at DESC, t.depth ASC, t.created_at ASC, t.comment_id
+        ]]>
+    </select>
+
+    <!-- 총 루트 카운트 -->
+    <select id="countCommentsByPostId" resultType="long">
+        <![CDATA[
+        SELECT COUNT(*)
+        FROM tbl_comment c
+        WHERE c.post_id = #{postId}
+          AND c.parent_id IS NULL
+        ]]>
+    </select>
+
+</mapper>

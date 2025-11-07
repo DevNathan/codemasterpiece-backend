@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0/EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <typeAliases>
+        <typeAlias type="com.app.codemasterpiecebackend.domain.dto.post.PostListDTO" alias="PostListDTO"/>
+        <typeAlias type="com.app.codemasterpiecebackend.domain.dto.post.PostDetailDTO" alias="PostDetailDTO"/>
+        <typeAlias type="com.app.codemasterpiecebackend.domain.dto.comment.CommentDTO" alias="CommentDTO"/>
+    </typeAliases>
+
+</configuration>

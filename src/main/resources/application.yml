@@ -1,0 +1,109 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  security:
+    oauth2:
+      client:
+        provider:
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+            user-name-attribute: id
+        registration:
+          github:
+            client-name: github
+            client-id: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_ID}
+            client-secret: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_SECRET}
+            redirect-uri: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_REDIRECT_URI}
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+
+  jpa:
+    open-in-view: ${SPRING_JPA_OPEN_IN_VIEW:false}
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
+    show-sql: ${SPRING_JPA_SHOW_SQL:true}
+
+server:
+  port: ${SERVER_PORT:10100}
+  servlet:
+    session:
+      cookie:
+        domain: ${SERVER_SERVLET_SESSION_COOKIE_DOMAIN}
+        http-only: ${SERVER_SERVLET_SESSION_COOKIE_HTTP_ONLY}
+        path: ${SERVER_SERVLET_SESSION_COOKIE_PATH}
+        same-site: ${SERVER_SERVLET_SESSION_COOKIE_SAME_SITE}
+        secure: ${SERVER_SERVLET_SESSION_COOKIE_SECURE}
+      timeout: ${SERVER_SERVLET_SESSION_TIMEOUT:60m}
+
+redis:
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT}
+  password: ${REDIS_PASSWORD}
+  ssl: ${REDIS_SSL}
+  timeoutMillis: ${REDIS_TIMEOUT_MILLIS:2000}
+  maxTotal: ${REDIS_MAX_TOTAL:32}
+  maxIdle: ${REDIS_MAX_IDLE:16}
+  minIdle: ${REDIS_MIN_IDLE:0}
+
+app:
+  auth.author-github-id: ${APP_AUTH_AUTHOR_GITHUB_ID}
+  net:
+    trusted-proxies:
+      - 127.0.0.1/32
+      - 10.0.0.0/8
+      - 172.16.0.0/12
+      - 192.168.0.0/16
+      - ::1/128
+      - fc00::/7
+    hash-salt: ${APP_NET_HASH_SALT}
+
+
+mybatis:
+  mapper-locations: classpath*:mybatis/mapper/**/*.xml
+  type-aliases-package: com.app.codemasterpiecebackend.domain.dto
+
+env:
+  WEB_URL: ${ENV_WEB_URL}
+
+file:
+  s3:
+    bucket: ${FILE_S3_BUCKET}
+    region: ${FILE_S3_REGION}
+    accessKeyId: ${FILE_S3_ACCESS_KEY_ID}
+    secretAccessKey: ${FILE_S3_SECRET_ACCESS_KEY}
+    connectTimeoutMs: ${FILE_S3_CONNECT_TIMEOUT_MS:3000}
+    readTimeoutMs: ${FILE_S3_READ_TIMEOUT_MS:10000}
+    maxRetries: ${FILE_S3_MAX_RETRIES:3}
+    cdnHost: ${FILE_S3_CDN_HOST}
+    keyPrefix: ${FILE_S3_KEY_PREFIX}
+
+image:
+  bin:
+    cwebp: /usr/bin/cwebp
+    avifenc: /usr/bin/avifenc
+    magick: /usr/bin/magick
+  timeout:
+    ms: 20000

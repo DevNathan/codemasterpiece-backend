@@ -1,0 +1,98 @@
+@startuml
+left to right direction
+skinparam packageStyle rect
+skinparam shadowing false
+skinparam roundcorner 8
+
+actor User as U
+actor Admin as A
+actor "Scheduler/GC" as GC
+actor "Variant Worker\n(Queue Consumer)" as VW
+actor "External Client\n(Presigned Upload)" as EX
+
+package "Application Core" {
+  usecase "Upload File" as UC_UPLOAD
+  usecase "Presign Read" as UC_PRESIGN_READ
+  usecase "Presign Write" as UC_PRESIGN_WRITE
+  usecase "Get File Meta (DB)" as UC_GET_DB
+  usecase "Head File (Storage)" as UC_HEAD
+  usecase "Register/Unregister Ref" as UC_REF
+  usecase "Request Image Variants" as UC_IMG_REQ
+  usecase "Request Video Variants" as UC_VID_REQ
+  usecase "List Variants" as UC_LIST_VAR
+  usecase "Delete File" as UC_DEL
+  usecase "Sweep Deletables" as UC_SWEEP
+
+  rectangle "Services" {
+    usecase "FileService" as S_FILE
+    usecase "ImageService" as S_IMG
+    usecase "VideoService" as S_VID
+    usecase "FileReferenceService" as S_REF
+  }
+
+  rectangle "Infra" {
+    usecase "IoManager\n(S3/Local)" as INF_IO
+    usecase "ImageVariantProcessor" as INF_IMGPROC
+    usecase "VideoVariantProcessor" as INF_VIDPROC
+    usecase "Variant Job Publisher\n(Rabbit/Outbox/CDC)" as INF_PUB
+    usecase "Repositories\n(File/Variant/Ref)" as INF_REPO
+  }
+}
+
+' Actors ↔ Use cases
+U --> UC_UPLOAD
+U --> UC_PRESIGN_READ
+U --> UC_PRESIGN_WRITE
+U --> UC_GET_DB
+U --> UC_HEAD
+U --> UC_REF
+U --> UC_IMG_REQ
+U --> UC_VID_REQ
+U --> UC_LIST_VAR
+
+A --> UC_DEL
+A --> UC_SWEEP
+
+EX --> UC_PRESIGN_WRITE
+
+VW --> INF_IMGPROC
+VW --> INF_VIDPROC
+
+GC --> UC_SWEEP
+
+' Use cases ↔ Services
+UC_UPLOAD --> S_FILE
+UC_PRESIGN_READ --> S_FILE
+UC_PRESIGN_WRITE --> S_FILE
+UC_GET_DB --> S_FILE
+UC_HEAD --> S_FILE
+UC_REF --> S_REF
+UC_IMG_REQ --> S_IMG
+UC_VID_REQ --> S_VID
+UC_LIST_VAR --> S_IMG
+UC_DEL --> S_FILE
+UC_SWEEP --> S_FILE
+
+' Services ↔ Infra
+S_FILE --> INF_IO
+S_FILE --> INF_REPO
+
+S_IMG --> S_FILE
+S_IMG --> INF_PUB
+S_IMG --> INF_REPO
+
+S_VID --> S_FILE
+S_VID --> INF_PUB
+S_VID --> INF_REPO
+
+S_REF --> INF_REPO
+
+INF_IMGPROC --> INF_IO
+INF_IMGPROC --> S_FILE
+INF_IMGPROC --> INF_REPO
+
+INF_VIDPROC --> INF_IO
+INF_VIDPROC --> S_FILE
+INF_VIDPROC --> INF_REPO
+
+@enduml

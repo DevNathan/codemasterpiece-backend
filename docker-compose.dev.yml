@@ -1,0 +1,32 @@
+services:
+  cm-postgres:
+    image: postgres:17.2-alpine3.20
+    container_name: cm-postgres
+    environment:
+      POSTGRES_USER: codemaster
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: codemasterdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - cm-postgres-vol:/var/lib/postgresql/data
+    networks:
+      - cm-network
+
+  cm-redis:
+    image: redis:7.0.15-alpine3.20
+    container_name: cm-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - cm-network
+    environment:
+      REDIS_PASSWORD: 1234
+    command: redis-server --requirepass 1234
+
+volumes:
+  cm-postgres-vol:
+
+networks:
+  cm-network:
+    driver: bridge

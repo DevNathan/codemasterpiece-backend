@@ -1,0 +1,59 @@
+@startuml
+autonumber
+actor User
+participant Controller
+participant ImageService
+participant FileService
+participant IoManager as IO
+database "DB\n(File/Variant/Ref)" as DB
+queue "Queue\n(Rabbit/Outbox/CDC)" as Q
+participant "ImageVariantProcessor" as Proc
+
+== Upload ==
+User -> Controller : multipart/form-data(file,...)
+Controller -> ImageService : upload(ImageUploadCmd)
+ImageService -> FileService : store(StoreCmd)
+FileService -> IO : put(key, stream, len, type)
+IO --> FileService : FileObjectMetadata
+FileService -> DB : INSERT StoredFile, dedup check
+DB --> FileService : StoredFile
+FileService --> ImageService : StoredFile
+
+== Variant Request ==
+alt profile hint present
+  ImageService -> Q : publish(fileId, targets)  ' ImageVariantJobPublisher
+end
+ImageService --> Controller : StoredFile (id, key, mime, size...)
+
+== Async Variant Processing ==
+Q -> Proc : fileId + targets
+Proc -> FileService : findById(fileId)
+FileService -> DB : SELECT StoredFile
+DB --> FileService : StoredFile
+Proc -> IO : openStream(originalKey)
+loop for each target
+  Proc -> IO : put(variantKey, bytes, type)
+  IO --> Proc : meta
+  Proc -> DB : UPSERT FileVariant(fileId, name, key, ...)
+end
+
+== Read/Head/Variants ==
+User -> Controller : GET /files/{id}
+Controller -> FileService : getFile(id)
+FileService -> DB : SELECT StoredFile
+DB --> FileService : StoredFile
+Controller -> ImageService : getVariants(id)
+ImageService -> DB : SELECT FileVariant*
+DB --> ImageService : variants
+Controller --> User : meta + variants
+
+== GC ==
+Controller -> DB : UPDATE refCount (inc/dec)
+alt refCount == 0
+  FileService -> DB : UPDATE status=DELETABLE
+end
+... later ...
+FileService -> IO : deletePrefix(variants), delete(original)
+IO --> FileService : ok
+FileService -> DB : UPDATE status=DELETED, deletedAt
+@enduml
