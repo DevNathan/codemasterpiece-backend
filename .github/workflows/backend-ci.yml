@@ -6,6 +6,8 @@ on:
       - "backend/**"
       - ".github/workflows/backend-ci.yml"
     branches: ["main"]
+    tags:
+      - "v*"
 
 permissions:
   contents: read
