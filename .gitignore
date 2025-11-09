@@ -1,10 +1,11 @@
 README.md
-**/.env
+**/.env.*
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+docker-compose.prod.yml
 
 ### STS ###
 .apt_generated

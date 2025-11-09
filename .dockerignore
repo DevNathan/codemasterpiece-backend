@@ -9,5 +9,5 @@ node_modules
 **/*.iml
 Dockerfile
 docker-compose*.yml
-.env
+src/main/resources/.env
 doc
