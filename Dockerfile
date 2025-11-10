@@ -28,10 +28,11 @@ RUN apk add --no-cache tzdata && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # 이미지 처리 도구 설치
-RUN apk add --no-cache \
-    libwebp-tools \
-    libavif-tools \
-    imagemagick
+RUN set -eux; \
+    apk add --no-cache \
+      libwebp-tools \
+      libavif-apps \
+      imagemagick
 
 # 빌드타임에서 툴 정상 확인
 RUN echo "Checking tools..." && \
