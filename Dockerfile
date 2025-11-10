@@ -27,11 +27,17 @@ ENV TZ=Asia/Seoul
 RUN apk add --no-cache tzdata && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# 이미지 처리 도구: cwebp, AVIF(heif-enc), ImageMagick
+# 이미지 처리 도구 설치
 RUN apk add --no-cache \
     libwebp-tools \
-    libheif-tools \
+    libavif-tools \
     imagemagick
+
+# 빌드타임에서 툴 정상 확인
+RUN echo "Checking tools..." && \
+    which cwebp && cwebp -version && \
+    which avifenc && avifenc -V && \
+    echo "All image tools are available."
 
 # 빌드 산출물
 COPY --from=build /workspace/build/libs/*.jar app.jar
