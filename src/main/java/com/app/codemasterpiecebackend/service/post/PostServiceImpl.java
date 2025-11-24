@@ -207,7 +207,7 @@ public class PostServiceImpl implements PostService {
         if (dto.getMorePosts() != null) {
             for (PostListDTO p : dto.getMorePosts()) {
                 if (p.getHeadImage() != null) {
-                    p.setHeadImage(FileUrlResolver.toBaseDirUrl(cdnProperties, p.getHeadImage()));
+                    p.setHeadImage(FileUrlResolver.toCdnUrl(cdnProperties, p.getHeadImage()));
                 }
             }
         }
