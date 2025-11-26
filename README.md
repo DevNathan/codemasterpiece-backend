@@ -15,6 +15,8 @@
 ### 목차
 
 1. 개발 주안점
+2. 백엔드 엔지니어링 표준
+3. 테크 스택
 
 <br>
 
@@ -89,3 +91,20 @@ JPA를 메인으로 사용하되, 복잡한 연산이나 특정 데이터베이�
 
 - **Reference Counting & Integrity (RefService)**
   > DB 데이터와 실제 파일의 실존 여부를 동기화하기 위해 **참조 카운팅(Reference Counting)** 시스템을 도입했습니다. 게시글, 댓글 등 도메인 엔티티와 파일 간의 연결을 `FileRef`로 관리하여, 고아 파일(Orphan File)을 추적하고 삭제하는 GC(Garbage Collection)의 기반을 마련했습니다.
+  
+---
+<br>
+
+## 3. 테크 스택
+
+## 3. Tech Stack
+
+| 분류 (Category) | 사용 기술 (Technologies) |
+| :--- | :--- |
+| **Language** | [![Java 21](https://img.shields.io/badge/Java_21_(LTS)-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/) |
+| **Framework** | [![Spring Boot](https://img.shields.io/badge/Spring_Boot_3.5.6-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot) [![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)](https://spring.io/projects/spring-security) |
+| **Data Access** | [![JPA](https://img.shields.io/badge/Spring_Data_JPA-59666C?style=for-the-badge&logo=hibernate&logoColor=white)](https://hibernate.org/) [![MyBatis](https://img.shields.io/badge/MyBatis_3.0-C60F04?style=for-the-badge&logo=mybatis&logoColor=white)](https://mybatis.org/mybatis-3/) [![Flyway](https://img.shields.io/badge/Flyway-CC0200?style=for-the-badge&logo=flyway&logoColor=white)](https://flywaydb.org/) |
+| **Database & Cache** | [![PostgreSQL](https://img.shields.io/badge/PostgreSQL_16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/) [![Redis](https://img.shields.io/badge/Redis_Jedis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/) |
+| **Infra & Cloud** | [![AWS S3](https://img.shields.io/badge/AWS_S3_SDK_v2-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/s3/) [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/) |
+| **DevOps & Tooling** | [![Lombok](https://img.shields.io/badge/Lombok-BC4521?style=for-the-badge&logo=lombok&logoColor=white)](https://projectlombok.org/) [![Yauaa](https://img.shields.io/badge/Yauaa_UserAgent-005571?style=for-the-badge&logo=apache&logoColor=white)](https://github.com/nielsbasjes/yauaa) |
+
