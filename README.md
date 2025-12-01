@@ -8,7 +8,7 @@
 
 🔗 [Code Masterpiece](https://www.codemasterpiece.com)
 
-🔗 [Frontend Repo](https://github.com/DevNathan/codemasterpiece-front)
+🔗 [Frontend Repo](https://github.com/DevNathan/codemasterpiece-frontend)
 
 ---
 
