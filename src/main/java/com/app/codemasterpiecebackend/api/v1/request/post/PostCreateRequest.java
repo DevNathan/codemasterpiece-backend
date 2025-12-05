@@ -28,7 +28,7 @@ public record PostCreateRequest(
         String headContent,
 
         @NotNull(message = "{validation.post.tags.notNull}")
-        @Size(max = 6, message = "{validation.post.tags.size}")
+        @Size(max = 20, message = "{validation.post.tags.size}")
         List<
                         @NotBlank(message = "{validation.tag.name.notBlank}")
                         @Size(max = 60, message = "{validation.tag.name.size}")

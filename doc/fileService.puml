@@ -34,7 +34,7 @@ package "Application Core" {
     usecase "IoManager\n(S3/Local)" as INF_IO
     usecase "ImageVariantProcessor" as INF_IMGPROC
     usecase "VideoVariantProcessor" as INF_VIDPROC
-    usecase "Variant Job Publisher\n(Rabbit/Outbox/CDC)" as INF_PUB
+    usecase "Variant Job Publisher\n(Outbox/CDC)" as INF_PUB
     usecase "Repositories\n(File/Variant/Ref)" as INF_REPO
   }
 }
