@@ -85,7 +85,15 @@ public class SecurityConfig {
     @Bean
     public UrlBasedCorsConfigurationSource corsConfig() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("https://www.codemasterpiece.com", "http://localhost:3000", "http://cm-front:3000", "http://192.168.0.3"));
+
+        config.setAllowedOrigins(List.of(
+                "https://codemasterpiece.com",
+                "https://www.codemasterpiece.com",
+                "http://localhost:3000",
+                "http://cm-front:3000",
+                "http://192.168.0.3"
+        ));
+
         config.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
