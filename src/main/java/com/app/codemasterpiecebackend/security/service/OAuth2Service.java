@@ -23,6 +23,8 @@ public class OAuth2Service extends DefaultOAuth2UserService {
         OAuth2User delegate = super.loadUser(userRequest);
         Map<String, Object> attrs = delegate.getAttributes();
 
+        System.out.println("보임?");
+
         String provider = userRequest.getClientRegistration().getRegistrationId();
         if (!"github".equals(provider)) {
             // 필터 레벨에서 인증실패로 처리되도록
