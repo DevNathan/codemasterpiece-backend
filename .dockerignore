@@ -2,6 +2,7 @@
 .gitignore
 .gradle
 build
+!build/libs/*.jar
 out
 node_modules
 .idea
