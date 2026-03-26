@@ -62,6 +62,24 @@ public class CommentController {
         return SuccessPayload.of(PageUtil.toResponseMap(result));
     }
 
+    @GetMapping("/{commentId}/raw")
+    public SuccessPayload<String> getRawComment(
+            @PathVariable String commentId,
+            @AuthenticationPrincipal @Nullable AppUserDetails userDetails,
+            @RequestHeader(value = HttpConstants.HEADER_CLIENT_KEY, required = false) @Nullable String clientKey
+    ) {
+        var actor = ActorUtil.resolve(userDetails, clientKey);
+
+        // 원본 데이터를 가져오는 서비스 호출
+        String rawContent = commentService.getRawContent(new CommentRawCmd(
+                commentId,
+                actor.elevated(),
+                actor.actorId()
+        ));
+
+        return SuccessPayload.of(rawContent);
+    }
+
     @PatchMapping("/{commentId}")
     public SuccessPayload<?> updateComment(
             @PathVariable String commentId,

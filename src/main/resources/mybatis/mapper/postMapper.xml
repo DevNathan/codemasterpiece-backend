@@ -63,7 +63,17 @@
         COALESCE(hv.storage_key, f.storage_key) AS head_image,
 
         p.head_content,
-        p.main_content,
+
+        /* 네트워크 최적화: excludeContent 플래그가 활성화된 경우 본문을 DB에서 조회하지 않습니다. */
+        <choose>
+            <when test="excludeContent">
+                NULL AS main_content,
+            </when>
+            <otherwise>
+                p.main_content,
+            </otherwise>
+        </choose>
+
         p.view_count,
         p.like_count,
         p.is_published,

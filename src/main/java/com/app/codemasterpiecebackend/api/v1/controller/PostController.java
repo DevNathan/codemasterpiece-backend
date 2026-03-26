@@ -18,6 +18,7 @@ import com.app.codemasterpiecebackend.service.post.cmd.PostSearchCmd;
 import com.app.codemasterpiecebackend.support.exception.AppException;
 import com.app.codemasterpiecebackend.support.net.IpResolver;
 import com.app.codemasterpiecebackend.util.ActorUtil;
+import com.app.codemasterpiecebackend.util.MarkdownUtil;
 import com.app.codemasterpiecebackend.util.PageUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -31,6 +32,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.app.codemasterpiecebackend.support.constant.HttpConstants.HEADER_CLIENT_KEY;
@@ -113,17 +115,21 @@ public class PostController {
     @GetMapping("/{slug}")
     public SuccessPayload<PostDetailDTO> getPost(
             @PathVariable String slug,
+            @RequestParam(name = "exclude-content", defaultValue = "false") boolean excludeContent,
             @AuthenticationPrincipal @Nullable AppUserDetails userDetails,
             @RequestHeader(value = HEADER_CLIENT_KEY, required = false) @Nullable String clientKey
     ) {
         var resolved = ActorUtil.resolve(userDetails, clientKey);
         boolean elevated = resolved.elevated();
 
+        System.out.println("excludeContent = " + excludeContent);
+
         var cmd = new PostDetailCmd(
                 trimToNull(slug),
                 resolved.provider(),
                 resolved.actorId(),
-                elevated
+                elevated,
+                excludeContent
         );
         var detail = postService.getDetail(cmd);
         return SuccessPayload.of(detail);
@@ -226,5 +232,21 @@ public class PostController {
     public SuccessPayload<PostEditDTO> getPostById(@PathVariable String postId) {
         var dto = postService.getEditById(postId);
         return SuccessPayload.of(dto);
+    }
+
+    @PostMapping("/preview")
+    @PreAuthorize("hasRole('AUTHOR')")
+    public SuccessPayload<Map<String, Object>> previewPostMarkdown(@RequestBody String content) {
+        if (content == null || content.isBlank()) {
+            return SuccessPayload.of(Map.of("html", "", "toc", List.of()));
+        }
+
+        String html = MarkdownUtil.parsePostToHtml(content);
+        var toc = MarkdownUtil.extractToc(content);
+
+        return SuccessPayload.of(Map.of(
+                "html", html,
+                "toc", toc
+        ));
     }
 }

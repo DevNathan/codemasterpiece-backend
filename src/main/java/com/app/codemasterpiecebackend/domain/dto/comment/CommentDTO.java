@@ -1,13 +1,12 @@
 package com.app.codemasterpiecebackend.domain.dto.comment;
 
-import com.app.codemasterpiecebackend.domain.entity.comment.ReactionValue;
+import com.app.codemasterpiecebackend.util.MarkdownUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.With;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -31,4 +30,14 @@ public class CommentDTO {
     private boolean anon;
     private boolean hasChildren;
     private List<CommentDTO> children;
+
+    /**
+     * 댓글 본문(Markdown)을 보안 정책이 적용된 HTML로 변환합니다.
+     */
+    public void parseContentToHtml() {
+        if (this.content != null && !this.deleted) {
+            // 댓글 전용 렌더러(보안 필터링 포함)를 사용하여 변환
+            this.content = MarkdownUtil.parseCommentToHtml(this.content);
+        }
+    }
 }

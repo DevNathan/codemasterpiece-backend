@@ -64,7 +64,6 @@ public class PostServiceImpl implements PostService {
     private final FileRefService fileRefService;
     private final FileService fileService;
 
-    private final EntityManager em;
     private final CdnProperties cdnProperties;
 
     // ------------------------------- Constants ----------------------------------
@@ -200,7 +199,8 @@ public class PostServiceImpl implements PostService {
                 cmd.slug(),
                 cmd.actorProvider() != null ? cmd.actorProvider().name() : null,
                 cmd.actorId(),
-                cmd.elevated()
+                cmd.elevated(),
+                cmd.excludeContent()
         ).orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "error.post.not_found"));
 
         dto.setHeadImage(FileUrlResolver.toCdnUrl(cdnProperties, dto.getHeadImage()));
@@ -212,6 +212,9 @@ public class PostServiceImpl implements PostService {
                 }
             }
         }
+        // excludeContent=true 일 시 해당 DTO 내부 로직으로 null검증을 함.
+        dto.parseMainContentToHtml();
+
         return dto;
     }
 

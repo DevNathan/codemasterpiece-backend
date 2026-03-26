@@ -6,6 +6,7 @@ public record PostDetailCmd(
         String slug,
         ActorProvider actorProvider,
         String actorId,
-        boolean elevated
+        boolean elevated,
+        boolean excludeContent
 ) {
 }

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.app'
-version = '1.0.0'
+version = '1.0.9'
 description = 'codemasterpiece-backend'
 
 java {
@@ -44,6 +44,7 @@ dependencies {
     // --- Utilities ---
     implementation 'nl.basjes.parse.useragent:yauaa:7.32.0'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+    implementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
 
     // --- Lombok ---
     compileOnly 'org.projectlombok:lombok'

@@ -31,6 +31,7 @@ public interface PostMapper {
             @Param("slug") String slug,
             @Param("actorProvider") String actorProvider,
             @Param("actorId") String actorId,
-            @Param("elevated") boolean elevated
+            @Param("elevated") boolean elevated,
+            @Param("excludeContent") boolean excludeContent
     );
 }

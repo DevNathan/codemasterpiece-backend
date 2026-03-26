@@ -121,7 +121,6 @@ public class CommentServiceImpl implements CommentService {
         int limit = cmd.pageable().getPageSize();
         long offset = cmd.pageable().getOffset();
 
-        // 화면 필드까지 완성된 평면 DTO 조회 (MyBatis)
         List<CommentDTO> flat = commentMapper.findCommentsByPostId(
                 cmd.postId(),
                 cmd.elevated(),
@@ -129,12 +128,30 @@ public class CommentServiceImpl implements CommentService {
                 limit,
                 offset
         );
+        flat.forEach(CommentDTO::parseContentToHtml);
 
-        // 트리 구성: children/hasChildren만 보강
         List<CommentDTO> roots = toTree(flat);
 
         long totalRoots = commentMapper.countCommentsByPostId(cmd.postId());
         return new PageImpl<>(roots, cmd.pageable(), totalRoots);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public String getRawContent(CommentRawCmd cmd) {
+        Comment comment = commentRepository.findById(cmd.commentId()).orElseThrow(
+                () -> new AppException(HttpStatus.NOT_FOUND, "error.comment.not_found")
+        );
+
+        // 보안 체크: GITHUB 계정은 소유자나 AUTHOR가 아니면 원본 노출 금지
+        if (comment.getActorProvider() == ActorProvider.GITHUB) {
+            boolean isOwner = comment.getActorId() != null && comment.getActorId().equals(cmd.actorId());
+            if (!cmd.elevated() && !isOwner) {
+                throw new AppException(HttpStatus.FORBIDDEN, "error.forbidden");
+            }
+        }
+
+        return comment.getContent();
     }
 
     // ===== U(pdate) =====
@@ -151,7 +168,6 @@ public class CommentServiceImpl implements CommentService {
         ensureModifiable(comment, cmd.userId(), cmd.password(), cmd.elevated());
         comment.updateContent(cmd.content());
 
-        // 즉시 재조회 없이 엔티티 기반 최소 DTO 반환 (집계값 없음)
         return dtoMapper.toDtoBasic(comment);
     }
 

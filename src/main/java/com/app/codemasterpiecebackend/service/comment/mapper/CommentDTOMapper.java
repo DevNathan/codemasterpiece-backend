@@ -4,6 +4,7 @@ import com.app.codemasterpiecebackend.domain.dto.comment.CommentDTO;
 import com.app.codemasterpiecebackend.domain.entity.comment.Comment;
 import com.app.codemasterpiecebackend.domain.entity.comment.ReactionValue;
 import com.app.codemasterpiecebackend.domain.types.ActorProvider;
+import com.app.codemasterpiecebackend.util.MarkdownUtil;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,7 @@ public class CommentDTOMapper {
                 c.getActorId(),
                 c.getActorSnapshot() != null ? c.getActorSnapshot().getImageUrl() : null,
                 c.getActorSnapshot() != null ? c.getActorSnapshot().getDisplayName() : null,
-                c.getContent(),
+                MarkdownUtil.parseCommentToHtml(c.getContent()),
                 0,          // 합산 점수는 쿼리에서 계산
                 null,       // 내 리액션도 쿼리에서
                 c.getDepth(),

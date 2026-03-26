@@ -38,6 +38,8 @@ public interface CommentService {
      */
     Page<CommentDTO> getPageByPostId(CommentViewCmd cmd);
 
+    String getRawContent(CommentRawCmd cmd);
+
     // ===== U(pdate) =====
 
     /**
