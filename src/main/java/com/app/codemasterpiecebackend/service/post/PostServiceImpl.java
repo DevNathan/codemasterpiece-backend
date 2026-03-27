@@ -68,10 +68,10 @@ public class PostServiceImpl implements PostService {
 
     // ------------------------------- Constants ----------------------------------
     /**
-     * 본문 내 파일 토큰: ![...](file://FL-XXXXXXXX... [ ?t=kind ])
+     * 본문 내 파일 토큰: ![...](image-token://FL-XXXXXXXX... [ ?t=kind ])
      */
     private static final Pattern FILE_TOKEN = Pattern.compile(
-            "!\\[[^]]*]\\(file://(FL-[A-Z0-9]{26})(?:\\?t=([\\w\\-_.]+))?\\)"
+            "!\\[[^]]*]\\(image-token://(FL-[A-Z0-9]{26})(?:\\?t=([\\w\\-_.]+))?\\)"
     );
 
     /**
@@ -395,6 +395,8 @@ public class PostServiceImpl implements PostService {
 
         List<String> ids = new ArrayList<>();
 
+        System.out.println("markdown = " + markdown);
+
         Matcher m1 = FILE_TOKEN.matcher(markdown);
         while (m1.find()) ids.add(m1.group(1));
 
@@ -461,7 +463,7 @@ public class PostServiceImpl implements PostService {
                 if (pickedKey == null) {
                     for (String k : DEFAULT_ORDER) {
                         if (kinds.containsKey(k)) {
-                            pickedKey = kinds.get(k);
+                            pickedKey = pickedKey = kinds.get(k);
                             break;
                         }
                     }
@@ -474,8 +476,9 @@ public class PostServiceImpl implements PostService {
             usedInOrder.add(id);
 
             String needle = (m.group(2) != null)
-                    ? "file://" + id + "\\?t=" + Pattern.quote(m.group(2))
-                    : "file://" + id;
+                    ? "image-token://" + id + "\\?t=" + Pattern.quote(m.group(2))
+                    : "image-token://" + id;
+
             String replaced = m.group().replaceFirst(needle, Matcher.quoteReplacement(finalUrl));
             m.appendReplacement(out, Matcher.quoteReplacement(replaced));
         }

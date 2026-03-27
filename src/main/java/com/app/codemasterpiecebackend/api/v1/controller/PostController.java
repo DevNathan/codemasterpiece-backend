@@ -122,8 +122,6 @@ public class PostController {
         var resolved = ActorUtil.resolve(userDetails, clientKey);
         boolean elevated = resolved.elevated();
 
-        System.out.println("excludeContent = " + excludeContent);
-
         var cmd = new PostDetailCmd(
                 trimToNull(slug),
                 resolved.provider(),
