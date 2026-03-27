@@ -234,7 +234,9 @@ public class PostController {
 
     @PostMapping("/preview")
     @PreAuthorize("hasRole('AUTHOR')")
-    public SuccessPayload<Map<String, Object>> previewPostMarkdown(@RequestBody String content) {
+    public SuccessPayload<Map<String, Object>> previewPostMarkdown(@RequestBody Map<String, String> payload) {
+        String content = payload.get("content");
+
         if (content == null || content.isBlank()) {
             return SuccessPayload.of(Map.of("html", "", "toc", List.of()));
         }
