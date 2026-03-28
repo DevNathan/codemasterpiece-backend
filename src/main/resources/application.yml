@@ -54,6 +54,7 @@ spring:
             redirect-uri: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITLAB_REDIRECT_URI}
             authorization-grant-type: authorization_code
             scope: read_user
+            provider: gitlab
 
   flyway:
     enabled: true
@@ -129,6 +130,5 @@ image:
   bin:
     cwebp: /usr/bin/cwebp
     avifenc: /usr/bin/avifenc
-    magick: /usr/bin/magick
   timeout:
     ms: 20000

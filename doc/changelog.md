@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1 - 2026-03-28
+### Fixed
+- application.yml에 gitlab 프로바이더 명시 추가
+
 ## 1.1.0 - 2026-03-28
 ### Added
 - GitLab OAuth2 로그인 연동 추가 (다중 소셜 프로바이더 지원)
