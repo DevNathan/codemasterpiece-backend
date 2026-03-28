@@ -1,0 +1,311 @@
+.
+├── main
+│   ├── generated
+│   ├── java
+│   │   └── com
+│   │       └── app
+│   │           └── codemasterpiecebackend
+│   │               ├── CodemasterpieceBackendApplication.java
+│   │               ├── api
+│   │               │   └── v1
+│   │               │       └── controller
+│   │               │           ├── AuthenticationController.java
+│   │               │           ├── I18nController.java
+│   │               │           ├── PingPongCont.java
+│   │               │           └── SitemapController.java
+│   │               ├── cron
+│   │               ├── domain
+│   │               │   ├── category
+│   │               │   │   ├── api
+│   │               │   │   │   └── v1
+│   │               │   │   │       ├── CategoryRequest.java
+│   │               │   │   │       └── CategoryV1Controller.java
+│   │               │   │   ├── application
+│   │               │   │   │   ├── CategoryCommand.java
+│   │               │   │   │   ├── CategoryService.java
+│   │               │   │   │   └── CategoryServiceImpl.java
+│   │               │   │   ├── dto
+│   │               │   │   │   ├── CategoryDTO.java
+│   │               │   │   │   └── CategorySitemapLinkDTO.java
+│   │               │   │   ├── entity
+│   │               │   │   │   ├── Category.java
+│   │               │   │   │   └── CategoryType.java
+│   │               │   │   └── repository
+│   │               │   │       └── CategoryRepository.java
+│   │               │   ├── comment
+│   │               │   │   ├── api
+│   │               │   │   │   └── v1
+│   │               │   │   │       ├── CommentRequest.java
+│   │               │   │   │       └── CommentV1Controller.java
+│   │               │   │   ├── application
+│   │               │   │   │   ├── CommentCommand.java
+│   │               │   │   │   ├── CommentDTOMapper.java
+│   │               │   │   │   ├── CommentService.java
+│   │               │   │   │   └── CommentServiceImpl.java
+│   │               │   │   ├── dto
+│   │               │   │   │   └── CommentDTO.java
+│   │               │   │   ├── entity
+│   │               │   │   │   ├── Comment.java
+│   │               │   │   │   ├── CommentReaction.java
+│   │               │   │   │   └── ReactionValue.java
+│   │               │   │   └── repository
+│   │               │   │       ├── CommentMapper.java
+│   │               │   │       ├── CommentQueryRepository.java
+│   │               │   │       ├── CommentQueryRepositoryImpl.java
+│   │               │   │       ├── CommentReactionRepository.java
+│   │               │   │       └── CommentRepository.java
+│   │               │   ├── file
+│   │               │   │   ├── api
+│   │               │   │   │   └── v1
+│   │               │   │   │       └── ImageV1Controller.java
+│   │               │   │   ├── core
+│   │               │   │   │   ├── application
+│   │               │   │   │   │   ├── DefaultFileServiceImpl.java
+│   │               │   │   │   │   ├── FileHousekeepingService.java
+│   │               │   │   │   │   ├── FileService.java
+│   │               │   │   │   │   └── StoreCmd.java
+│   │               │   │   │   ├── dto
+│   │               │   │   │   │   ├── FileInfo.java
+│   │               │   │   │   │   ├── FileObjectMetadata.java
+│   │               │   │   │   │   └── FilePurgeRow.java
+│   │               │   │   │   ├── entity
+│   │               │   │   │   │   ├── FileStatus.java
+│   │               │   │   │   │   ├── StorageType.java
+│   │               │   │   │   │   └── StoredFile.java
+│   │               │   │   │   ├── repository
+│   │               │   │   │   │   └── StoredFileRepository.java
+│   │               │   │   │   └── support
+│   │               │   │   │       ├── FilePathStrategy.java
+│   │               │   │   │       └── UlidPathStrategy.java
+│   │               │   │   ├── job
+│   │               │   │   │   └── FileCleaner.java
+│   │               │   │   ├── media
+│   │               │   │   │   ├── application
+│   │               │   │   │   │   ├── ImageService.java
+│   │               │   │   │   │   ├── ImageServiceImpl.java
+│   │               │   │   │   │   └── MediaUploadUseCase.java
+│   │               │   │   │   └── dto
+│   │               │   │   │       ├── ImageUploadResponse.java
+│   │               │   │   │       └── MediaKind.java
+│   │               │   │   ├── ref
+│   │               │   │   │   ├── application
+│   │               │   │   │   │   ├── FileRefCommand.java
+│   │               │   │   │   │   ├── FileRefService.java
+│   │               │   │   │   │   └── FileRefServiceImpl.java
+│   │               │   │   │   ├── entity
+│   │               │   │   │   │   ├── FileOwnerType.java
+│   │               │   │   │   │   ├── FilePurpose.java
+│   │               │   │   │   │   └── FileRef.java
+│   │               │   │   │   └── repository
+│   │               │   │   │       └── FileRefRepository.java
+│   │               │   │   └── variant
+│   │               │   │       ├── application
+│   │               │   │       │   ├── VariantDispatcher.java
+│   │               │   │       │   ├── VariantPersister.java
+│   │               │   │       │   └── VariantWorker.java
+│   │               │   │       ├── dto
+│   │               │   │       │   ├── VariantPreset.java
+│   │               │   │       │   └── VariantProcessCmd.java
+│   │               │   │       ├── entity
+│   │               │   │       │   ├── FileVariant.java
+│   │               │   │       │   └── FileVariantKind.java
+│   │               │   │       ├── processor
+│   │               │   │       │   ├── ExternalToolImageTransformer.java
+│   │               │   │       │   ├── ImageTransformer.java
+│   │               │   │       │   ├── ImageVariantProcessor.java
+│   │               │   │       │   └── VariantProcessor.java
+│   │               │   │       └── repository
+│   │               │   │           └── FileVariantRepository.java
+│   │               │   ├── guestbook
+│   │               │   │   ├── api
+│   │               │   │   │   └── v1
+│   │               │   │   │       ├── GuestbookRequest.java
+│   │               │   │   │       └── GuestbookV1Controller.java
+│   │               │   │   ├── application
+│   │               │   │   │   ├── GuestbookCommand.java
+│   │               │   │   │   ├── GuestbookDTOMapper.java
+│   │               │   │   │   ├── GuestbookService.java
+│   │               │   │   │   └── GuestbookServiceImpl.java
+│   │               │   │   ├── dto
+│   │               │   │   │   └── EntryDTO.java
+│   │               │   │   ├── entity
+│   │               │   │   │   └── GuestbookEntry.java
+│   │               │   │   └── repository
+│   │               │   │       └── GuestbookRepository.java
+│   │               │   ├── pageView
+│   │               │   │   ├── api
+│   │               │   │   │   └── v1
+│   │               │   │   │       ├── AnalyticsQueryV1Controller.java
+│   │               │   │   │       └── AnalyticsV1Controller.java
+│   │               │   │   ├── dto
+│   │               │   │   │   ├── PageViewEvent.java
+│   │               │   │   │   └── PvAggDto.java
+│   │               │   │   ├── entity
+│   │               │   │   │   ├── BaseRollup.java
+│   │               │   │   │   ├── PageView.java
+│   │               │   │   │   ├── PvDaily.java
+│   │               │   │   │   ├── PvMonthly.java
+│   │               │   │   │   └── PvWeekly.java
+│   │               │   │   ├── job
+│   │               │   │   │   ├── AnalyticsRollupScheduler.java
+│   │               │   │   │   └── PageViewRetentionScheduler.java
+│   │               │   │   └── repository
+│   │               │   │       ├── PageViewRepository.java
+│   │               │   │       ├── PvDailyRepository.java
+│   │               │   │       ├── PvMonthlyRepository.java
+│   │               │   │       └── PvWeeklyRepository.java
+│   │               │   ├── post
+│   │               │   │   ├── api
+│   │               │   │   │   └── v1
+│   │               │   │   │       ├── PostRequest.java
+│   │               │   │   │       └── PostV1Controller.java
+│   │               │   │   ├── application
+│   │               │   │   │   ├── PostCommand.java
+│   │               │   │   │   ├── PostLikeService.java
+│   │               │   │   │   ├── PostLikeServiceImpl.java
+│   │               │   │   │   ├── PostService.java
+│   │               │   │   │   ├── PostServiceImpl.java
+│   │               │   │   │   ├── PostViewRedisService.java
+│   │               │   │   │   └── PostViewService.java
+│   │               │   │   ├── dto
+│   │               │   │   │   ├── PostDetailDTO.java
+│   │               │   │   │   ├── PostEditDTO.java
+│   │               │   │   │   ├── PostListDTO.java
+│   │               │   │   │   └── PostResult.java
+│   │               │   │   ├── entity
+│   │               │   │   │   ├── Post.java
+│   │               │   │   │   ├── PostLike.java
+│   │               │   │   │   ├── PostTag.java
+│   │               │   │   │   └── Tag.java
+│   │               │   │   ├── job
+│   │               │   │   │   └── ViewKeysCleaner.java
+│   │               │   │   └── repository
+│   │               │   │       ├── PostLikeRepository.java
+│   │               │   │       ├── PostMapper.java
+│   │               │   │       ├── PostQueryRepository.java
+│   │               │   │       ├── PostQueryRepositoryImpl.java
+│   │               │   │       ├── PostRepository.java
+│   │               │   │       └── TagRepository.java
+│   │               │   ├── quiz
+│   │               │   │   └── entity
+│   │               │   │       ├── QuizChoice.java
+│   │               │   │       ├── QuizItem.java
+│   │               │   │       └── QuizType.java
+│   │               │   └── shared
+│   │               │       ├── base
+│   │               │       │   └── BaseTimeEntity.java
+│   │               │       ├── embeddable
+│   │               │       │   ├── ActorSnapshot.java
+│   │               │       │   └── GuestAuth.java
+│   │               │       └── security
+│   │               │           ├── ActorProvider.java
+│   │               │           ├── ContentAuthorizer.java
+│   │               │           └── RoleType.java
+│   │               ├── global
+│   │               │   ├── config
+│   │               │   │   ├── ClockBean.java
+│   │               │   │   ├── RedisConfig.java
+│   │               │   │   ├── SchedulingConfig.java
+│   │               │   │   ├── i18n
+│   │               │   │   │   ├── LocaleConfig.java
+│   │               │   │   │   └── MessageConfig.java
+│   │               │   │   ├── jpa
+│   │               │   │   │   ├── PrefixedUlidGenerator.java
+│   │               │   │   │   └── PrefixedUlidId.java
+│   │               │   │   ├── net
+│   │               │   │   │   ├── NetProps.java
+│   │               │   │   │   └── UserAgentConfig.java
+│   │               │   │   └── s3
+│   │               │   │       ├── AwsS3Config.java
+│   │               │   │       └── S3StorageProperties.java
+│   │               │   ├── infra
+│   │               │   │   ├── filesystem
+│   │               │   │   │   └── io
+│   │               │   │   │       ├── IoManager.java
+│   │               │   │   │       ├── S3IoManager.java
+│   │               │   │   │       └── cmd
+│   │               │   │   │           └── PutCommand.java
+│   │               │   │   └── messaging
+│   │               │   │       └── variant
+│   │               │   │           ├── VariantExecutorConfig.java
+│   │               │   │           ├── VariantJob.java
+│   │               │   │           └── VariantProducer.java
+│   │               │   ├── security
+│   │               │   │   ├── config
+│   │               │   │   │   ├── AuthenticationHandlerConfig.java
+│   │               │   │   │   └── SecurityConfig.java
+│   │               │   │   ├── redirect
+│   │               │   │   │   └── RuriSupport.java
+│   │               │   │   ├── service
+│   │               │   │   │   └── OAuth2Service.java
+│   │               │   │   └── user
+│   │               │   │       ├── AppUserDetails.java
+│   │               │   │       ├── GithubUser.java
+│   │               │   │       └── GitlabUser.java
+│   │               │   ├── support
+│   │               │   │   ├── constant
+│   │               │   │   │   └── HttpConstants.java
+│   │               │   │   ├── exception
+│   │               │   │   │   ├── AppException.java
+│   │               │   │   │   ├── FieldValidationException.java
+│   │               │   │   │   └── VariantProcessException.java
+│   │               │   │   ├── net
+│   │               │   │   │   ├── BotFilter.java
+│   │               │   │   │   ├── Cidr.java
+│   │               │   │   │   └── IpResolver.java
+│   │               │   │   ├── response
+│   │               │   │   │   ├── ErrorResponse.java
+│   │               │   │   │   ├── SuccessPayload.java
+│   │               │   │   │   └── SuccessResponse.java
+│   │               │   │   ├── time
+│   │               │   │   │   └── TtlCalculator.java
+│   │               │   │   ├── tx
+│   │               │   │   │   └── TxHooks.java
+│   │               │   │   └── web
+│   │               │   │       ├── AccessLogFilter.java
+│   │               │   │       ├── GlobalExceptionHandler.java
+│   │               │   │       ├── SkipWrap.java
+│   │               │   │       ├── SuccessWrappingAdvice.java
+│   │               │   │       └── TraceIdFilter.java
+│   │               │   └── util
+│   │               │       ├── ActorUtil.java
+│   │               │       ├── CdnProperties.java
+│   │               │       ├── FileUrlResolver.java
+│   │               │       ├── MarkdownUtil.java
+│   │               │       ├── PageUtil.java
+│   │               │       ├── SliceUtil.java
+│   │               │       ├── Stringx.java
+│   │               │       ├── TransactionUtil.java
+│   │               │       └── ULIDs.java
+│   │               └── service
+│   │                   └── analytics
+│   │                       ├── AnalyticsReadService.java
+│   │                       ├── AnalyticsService.java
+│   │                       └── RollupService.java
+│   └── resources
+│       ├── application.yml
+│       ├── db
+│       │   └── migration
+│       │       └── V1__init.sql
+│       ├── logback-spring.xml
+│       ├── messages.properties
+│       ├── messages_ko.properties
+│       ├── mybatis
+│       │   ├── config.xml
+│       │   └── mapper
+│       │       ├── commentMapper.xml
+│       │       └── postMapper.xml
+│       └── static
+│           ├── favicon.ico
+│           └── index.html
+├── test
+│   ├── generated_tests
+│   └── java
+│       └── com
+│           └── app
+│               └── codemasterpiecebackend
+│                   └── util
+│                       └── MarkdownUtilTest.java
+└── tree.txt
+
+118 directories, 191 files

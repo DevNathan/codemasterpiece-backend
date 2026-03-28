@@ -1,0 +1,23 @@
+package com.app.codemasterpiecebackend.domain.guestbook.dto;
+
+import com.app.codemasterpiecebackend.domain.shared.security.ActorProvider;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class EntryDTO {
+    private String entryId;
+    private String actorId;
+    private ActorProvider provider;
+    private String profileImage;
+    private String nickname;
+    private String content;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private boolean author;
+}

@@ -1,5 +1,6 @@
 package com.app.codemasterpiecebackend.util;
 
+import com.app.codemasterpiecebackend.global.util.MarkdownUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,17 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
 spring:
+  devtools:
+    restart:
+      enabled: true
+
   config:
     import: optional:file:.env.dev[.properties]
 
@@ -23,12 +36,24 @@ spring:
             token-uri: https://github.com/login/oauth/access_token
             user-info-uri: https://api.github.com/user
             user-name-attribute: id
+          gitlab:
+            authorization-uri: https://gitlab.com/oauth/authorize
+            token-uri: https://gitlab.com/oauth/token
+            user-info-uri: https://gitlab.com/api/v4/user
+            user-name-attribute: id
         registration:
           github:
             client-name: github
             client-id: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_ID}
             client-secret: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_SECRET}
             redirect-uri: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_REDIRECT_URI}
+          gitlab:
+            client-name: gitlab
+            client-id: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITLAB_CLIENT_ID}
+            client-secret: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITLAB_CLIENT_SECRET}
+            redirect-uri: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITLAB_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            scope: read_user
 
   flyway:
     enabled: true
@@ -83,7 +108,7 @@ app:
 
 mybatis:
   mapper-locations: classpath*:mybatis/mapper/**/*.xml
-  type-aliases-package: com.app.codemasterpiecebackend.domain.dto
+  type-aliases-package: com.app.codemasterpiecebackend.domain
 
 env:
   WEB_URL: ${ENV_WEB_URL}

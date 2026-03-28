@@ -4,9 +4,9 @@
 <configuration>
 
     <typeAliases>
-        <typeAlias type="com.app.codemasterpiecebackend.domain.dto.post.PostListDTO" alias="PostListDTO"/>
-        <typeAlias type="com.app.codemasterpiecebackend.domain.dto.post.PostDetailDTO" alias="PostDetailDTO"/>
-        <typeAlias type="com.app.codemasterpiecebackend.domain.dto.comment.CommentDTO" alias="CommentDTO"/>
+        <typeAlias type="com.app.codemasterpiecebackend.domain.post.dto.PostListDTO" alias="PostListDTO"/>
+        <typeAlias type="com.app.codemasterpiecebackend.domain.post.dto.PostDetailDTO" alias="PostDetailDTO"/>
+        <typeAlias type="com.app.codemasterpiecebackend.domain.comment.dto.CommentDTO" alias="CommentDTO"/>
     </typeAliases>
 
 </configuration>
